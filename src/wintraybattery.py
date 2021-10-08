@@ -99,7 +99,7 @@ def getUpdatedText():
     batts = t.ExecQuery('Select * from BatteryStatus where Voltage > 0')
     for i, b in enumerate(batts):
         # new_text+=(f'Battery: {i}\n')
-        new_text+=('isCharging: ' + str(b.PowerOnline)) + '\n'
+        # new_text+=('isCharging: ' + str(b.PowerOnline)) + '\n'
         # new_text+=('Discharging:       ' + str(b.Discharging)) + '\n'
         # new_text+=('Charging:          ' + str(b.Charging)) + '\n'
         # new_text+=('Voltage:           ' + str(b.Voltage)) + '\n'
@@ -136,7 +136,7 @@ def getUpdatedText():
 
 # menu_options = (("Say Hello", None, say_hello),)
 # systray = SysTrayIcon("icon.ico", "Example tray icon", menu_options)
-systray = SysTrayIcon("icon.ico", "Example tray icon", None)
+systray = SysTrayIcon("icon.ico", "Starting Battery Monitor...", None)
 systray.start()
 
 print('Starting Tray Icon...')
