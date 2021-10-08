@@ -1,6 +1,5 @@
 from infi.systray import SysTrayIcon
 from time import sleep
-
 import wmi
 
 c = wmi.WMI()
@@ -21,19 +20,21 @@ class metric:
         if self.hidden:
             return ""
         else:
-            return self.name + ": " + str(self.value) + self.unit
+            return self.name + ": " + str(self.value()) + self.unit
     
     def __repr__(self):
         return self.__str__()
 
     def __eq__(self, other):
-        return self.name == other.name and self.unit == other.unit and self.value == other.value
+        return self.name == other.name and self.unit == other.unit and self.value() == other.value()
     
     def __ne__(self, other):
         return not self.__eq__(other)
 
-class metric_system:
-    def __init__(self,metrics=[]):
+
+class battery:
+    def __init__(self,battery,metrics=[]):
+        self.battery = battery
         self.metrics = metrics
     
     def __str__(self):
@@ -62,6 +63,33 @@ class metric_system:
     
     def get_metrics(self):
         return self.metrics
+    
+
+physical_batteries = t.ExecQuery('Select * from BatteryStatus where Voltage > 0')
+
+if(len(physical_batteries)==0):
+    print("Error... No batteries found\nExiting...")
+    exit()
+
+batteries = {}
+
+for b in physical_batteries:
+    batteries[b.Tag] = battery(b)
+
+    metrics = []
+    # metrics.append(metric('Battery % Remaining', '%', b.EstimatedChargeRemaining))
+    metrics.append(metric('Battery Voltage', 'V', b.Voltage))
+    # metrics.append(metric('Battery Current', 'A', b.Current))
+    metrics.append(metric('Battery Remaining Capacity', 'mAh', b.RemainingCapacity))
+    # metrics.append(metric('Battery Full Capacity', 'mAh', b.FullCapacity))
+    # metrics.append(metric('Battery Design Capacity', 'mAh', b.DesignCapacity))
+    # metrics.append(metric('Battery Cycle Count', '', b.CycleCount))
+    # metrics.append(metric('Battery Temperature', 'C', b.Temperature))
+    # metrics.append(metric('Battery Estimated Time Remaining', '', b.EstimatedTime))
+    # metrics.append(metric('Battery Estimated Run Time', 'hours', b.EstimatedRunTime))
+    metrics.append(metric('Battery Estimated Charge Rate', 'mWh', b.ChargeRate))
+    metrics.append(metric('Battery Estimated Discharge Rate', 'mWh', b.DischargeRate))
+    metrics.append(metric('isCharging', '', b.Charging))
     
 
 
