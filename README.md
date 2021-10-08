@@ -1,5 +1,4 @@
-# WinTrayBetteryInfo - An open-source Battery Status Applet for Windows  
-
+# WinTrayBetteryInfo
 ## Disclaimer
 This tool is in early development. It is not intended to be used in anything serious.
 ## General Information
