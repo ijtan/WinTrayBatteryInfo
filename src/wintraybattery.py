@@ -104,9 +104,9 @@ def getUpdatedText():
         # new_text+=('Charging:          ' + str(b.Charging)) + '\n'
         # new_text+=('Voltage:           ' + str(b.Voltage)) + '\n'
         if(b.Discharging):
-            new_text+=('Discharge Rate: -' + str(b.DischargeRate)) + 'mWh\n'
+            new_text+=('Discharge Rate: -' + str("{:,}".format(b.DischargeRate))) + 'mWh\n'
         else:
-            new_text+=('Charge Rate: ' + str(b.ChargeRate)) + '\n'
+            new_text+=('Charge Rate: ' + str("{:,}".format(b.ChargeRate))) + '\n'
 
         if(b.Discharging and float(b.DischargeRate)!=0):
             time_left = float(b.RemainingCapacity)/float(b.DischargeRate)
