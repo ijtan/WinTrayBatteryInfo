@@ -143,6 +143,18 @@ def ex1(sysTrayIcon):
 def someOtherFunction(sysTrayIcon):
     print('some other function')
 
+#things TODO:
+#1. Dynamically add the options to the menu based on the metrics implemented
+#2. Add two icons for the metrics, one is 'checked' as in a very good and the other is 'unchecked' / blank
+    #3. These wil be updated when the metrics are enabled / disabled
+#4. Make the metric enabled/disabled status persistent
+
+#5. Add an option to select tray icon modes (dicharge rate maybe or time remaining etc. )
+    #whole infrastructure for this needs to be implemented ^^
+    # Dynamic icon generation for example 1k 2k 3k for discharge rate
+    # Dynamic icon generation for time remaining 
+
+
 menu_options = (
     ('Options', "submenu.ico", (
                     ('example thing 1', "simon.ico", ex1),
