@@ -136,7 +136,21 @@ def getUpdatedText():
 
 # menu_options = (("Say Hello", None, say_hello),)
 # systray = SysTrayIcon("icon.ico", "Example tray icon", menu_options)
-systray = SysTrayIcon("icon.ico", "Starting Battery Monitor...", None)
+
+def ex1(sysTrayIcon):
+    print('example 1')
+
+def someOtherFunction(sysTrayIcon):
+    print('some other function')
+
+menu_options = (
+    ('Options', "submenu.ico", (
+                    ('example thing 1', "simon.ico", ex1),
+                    ('some other thing', None, someOtherFunction),
+                                              )),
+               )
+
+systray = SysTrayIcon("icon.ico", "Starting Battery Monitor...", menu_options)
 systray.start()
 
 print('Starting Tray Icon...')
