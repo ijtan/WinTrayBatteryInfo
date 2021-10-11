@@ -16,3 +16,13 @@ Where several other metrics can be shown including:
 - Battery Health                (Does not work when Design Capacity is not available)
 - Battery Temperature           (WIP: not yet implemented)
 
+# Dynamic Tray Icons
+Eventually, this should be customizable where a user can choose which metrics to display through a simple GUI, currently, preset metrics are shown, so the Icon is still useful.
+## Whilst Charging
+![image](https://user-images.githubusercontent.com/11772153/136819760-f97c16ab-3399-4d4d-b52c-0506fb5d0275.png)
+Top: Charge Percent Remaining
+Bottom: Charge rate (in Wh)
+## Whilst Discharging
+![image](https://user-images.githubusercontent.com/11772153/136819779-a96fc0cb-e9e0-4ea2-bc2f-9731470efd34.png)
+Top: Discharge rate (in Wh)
+Bottom: Predicted Battery Time Remaining
