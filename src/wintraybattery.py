@@ -12,12 +12,27 @@ icon_path = "BatteryIcon.ico"
 
 defualt_battery_index = 0
 
-def getImage(deltaRate, deltaTime):
-    img = Image.new('RGBA', (50, 50), color = (255, 255, 255, 90))  # color background =  white  with transparency
-    d = ImageDraw.Draw(img)
-    font_type  = ImageFont.truetype("arial.ttf", 25)
+def getImage(deltaRate, deltaMetric,negative=True):
+    # if(negative):
+    #     # img = Image.new('RGBA', (50, 50), color = (0, 0, 0, 255))
+    #     img = Image.new('RGBA', (50, 50), color = (0, 0, 0, 0))
+    # else:
+    #     img = Image.new('RGBA', (50, 50), color = (255, 255, 255, 90))
+    img = Image.new('RGBA', (50, 50), color = (0, 0, 0, 0))
 
-    d.text((0,0), f"{deltaRate}\n{deltaTime}", fill=(255,255,0), font = font_type)
+
+    d = ImageDraw.Draw(img)
+    # font_type  = ImageFont.truetype("arial.ttf", 25)
+    font_type  = ImageFont.truetype("arialbd.ttf", 25)
+    # font_type  = ImageFont.truetype("segoeui.ttf", 21)
+
+    if(negative):
+        # d.text((0, 0), f"{deltaRate}\n{deltaTime}", fill=(255, 0, 0, 255), font=font_type)
+        d.text((0, 0), f"{deltaRate}\n{deltaMetric}", fill=(255, 255, 255, 255), font=font_type)
+    else:
+        d.text((0, 0), f"{deltaMetric}\n{deltaRate}", fill=(0, 255, 0, 255), font=font_type)
+
+    # d.text((0,0), f"{deltaRate}\n{deltaTime}", fill=(255,255,0), font = font_type)
 
     img.save(icon_path)
     return icon_path
@@ -111,20 +126,24 @@ for b in physical_batteries:
 
 def getIconInfo():
     rate = 0
-    time_text = ''
+    second_text = ''
     batts = t.ExecQuery('Select * from BatteryStatus where Voltage > 0')
-    for i, b in enumerate(batts):
+    for b in batts:
         rate = b.dischargeRate if b.dischargeRate else b.chargeRate
-        rate = str("{:,}".format(rate)) 
-
-        time_text = ""
+        rate/=1000
+        rate = str(round(rate,1))+'k'
+        # rate = str("{:,}".format(rate)) 
     
         if(b.Discharging and float(b.DischargeRate)!=0):
                 time_left = float(b.RemainingCapacity)/float(b.DischargeRate)
                 hours_left = int(time_left)
-                mins_left = (time_left % 1.0)*60
-                time_text = f"{hours_left}h : {mins_left}m"
-    return rate, time_text
+                mins_left = int((time_left % 1.0)*60)
+                # second_text = f"{hours_left}h : {mins_left}m"
+                second_text = f"{hours_left}:{mins_left}"
+        elif not b.Discharging:
+           second_text = f"{ c.win32_battery()[defualt_battery_index].EstimatedChargeRemaining}%"
+
+    return rate, second_text,b.Discharging
     
 
 
