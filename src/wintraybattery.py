@@ -2,6 +2,7 @@ from infi.systray import SysTrayIcon
 from time import sleep
 import wmi
 from PIL import Image, ImageDraw,ImageFont
+import os
 
 
 c = wmi.WMI()
@@ -13,26 +14,15 @@ icon_path = "BatteryIcon.ico"
 defualt_battery_index = 0
 
 def getImage(deltaRate, deltaMetric,negative=True):
-    # if(negative):
-    #     # img = Image.new('RGBA', (50, 50), color = (0, 0, 0, 255))
-    #     img = Image.new('RGBA', (50, 50), color = (0, 0, 0, 0))
-    # else:
-    #     img = Image.new('RGBA', (50, 50), color = (255, 255, 255, 90))
     img = Image.new('RGBA', (50, 50), color = (0, 0, 0, 0))
 
-
     d = ImageDraw.Draw(img)
-    # font_type  = ImageFont.truetype("arial.ttf", 25)
     font_type  = ImageFont.truetype("arialbd.ttf", 25)
-    # font_type  = ImageFont.truetype("segoeui.ttf", 21)
 
     if(negative):
-        # d.text((0, 0), f"{deltaRate}\n{deltaTime}", fill=(255, 0, 0, 255), font=font_type)
         d.text((0, 0), f"{deltaRate}\n{deltaMetric}", fill=(255, 255, 255, 255), font=font_type)
     else:
         d.text((0, 0), f"{deltaMetric}\n{deltaRate}", fill=(0, 255, 0, 255), font=font_type)
-
-    # d.text((0,0), f"{deltaRate}\n{deltaTime}", fill=(255,255,0), font = font_type)
 
     img.save(icon_path)
     return icon_path
@@ -155,7 +145,7 @@ def getUpdatedText():
         # new_text+=('isCharging: ' + str(b.PowerOnline)) + '\n'
         # new_text+=('Discharging:       ' + str(b.Discharging)) + '\n'
         # new_text+=('Charging:          ' + str(b.Charging)) + '\n'
-        # new_text+=('Voltage:           ' + str(b.Voltage)) + '\n'
+        
         if(b.Discharging):
             new_text+=('Discharge Rate: -' + str("{:,}".format(b.DischargeRate))) + 'mWh\n'
         else:
@@ -166,29 +156,18 @@ def getUpdatedText():
             hours_left = int(time_left)
             mins_left = (time_left % 1.0)*60
             new_text += 'Time Remaining: ' + '%i hr %i min' % (hours_left, mins_left)+'\n'
-        
+
+
+        new_text+=('Voltage:           ' + str(b.Voltage)) + '\n'
+
+
         '''
         CANNOT CALCULATE TIME LEFT FOR CHARGING BATTERIES WELL
         AS DESIGN CAPACITY NOT WORKING
         '''
 
-
-        # if(not b.Discharging and float(b.ChargeRate)!=0):
-        #     # new_text += 'Charge Time Remaining: ' + str(float(b.RemainingCapacity) / float(b.ChargeRate)) + '\n'
-        #     time_left = float(b.RemainingCapacity)/float(b.ChargeRate)
-        #     hours_left = int(time_left)
-        #     mins_left = (time_left % 1.0)*60
-        #     new_text += 'Charge Time Remaining: ' + '%i hr %i min' % (hours_left, mins_left)+'\n'
-
-
         # new_text+=('RemainingCapacity: ' + str(b.RemainingCapacity)) + '\n'
-        # new_text+=('Active:            ' + str(b.Active)) + '\n'
-        # new_text+=('Critical:          ' + str(b.Critical)) + '\n'
     return new_text
-
-
-# menu_options = (("Say Hello", None, say_hello),)
-# systray = SysTrayIcon("icon.ico", "Example tray icon", menu_options)
 
 def ex1(sysTrayIcon):
     print('example 1')
@@ -203,9 +182,6 @@ def someOtherFunction(sysTrayIcon):
 #4. Make the metric enabled/disabled status persistent
 
 #5. Add an option to select tray icon modes (dicharge rate maybe or time remaining etc. )
-    #whole infrastructure for this needs to be implemented ^^
-    # Dynamic icon generation for example 1k 2k 3k for discharge rate
-    # Dynamic icon generation for time remaining 
 
 
 menu_options = (
@@ -215,18 +191,36 @@ menu_options = (
                                               )),
                )
 
-systray = SysTrayIcon("icon.ico", "Starting Battery Monitor...", menu_options)
-systray.start()
-
-print('Starting Tray Icon...')
-sleep(5) # requires sleep to allow the systray to start
+systray = SysTrayIcon((getImage('...','...',False)), "Starting Battery Monitor...", menu_options)
 
 
-print('Starting battery monitor...')
-print(systray._hwnd)
-while systray._hwnd is not None:
-    new_text = getUpdatedText()
-    # new_image = getImage(
-    print(f'Got new text: \n{new_text}')
-    systray.update(getImage(*getIconInfo()), new_text)
-    sleep(3)
+def main():
+    systray.start()
+    print('Starting Tray Icon...')
+    # sleep(5) # requires sleep to allow the systray to start
+    while(not systray._hwnd):
+        sleep(.1)
+        print('Waiting for Tray Icon to start...')
+
+
+    print('Starting battery Icon...')
+    print(systray._hwnd)
+    while systray._hwnd is not None:
+        new_text = getUpdatedText()
+        # new_image = getImage(
+        print(f'Got new text: \n{new_text}')
+        systray.update(getImage(*getIconInfo()), new_text)
+        sleep(1)
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt:
+        print('Interrupted\nShutting Down...')
+        
+
+        try:
+            systray.shutdown()
+        except SystemExit:
+            os._exit(0)
