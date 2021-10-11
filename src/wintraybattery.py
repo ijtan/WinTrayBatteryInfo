@@ -185,10 +185,10 @@ def someOtherFunction(sysTrayIcon):
 
 
 menu_options = (
-    ('Options', "submenu.ico", (
-                    ('example thing 1', "simon.ico", ex1),
-                    ('some other thing', None, someOtherFunction),
-                                              )),
+    # ('Options', "submenu.ico", (
+                    # ('example thing 1', "simon.ico", ex1),
+                    # ('some other thing', None, someOtherFunction),
+                                            #   )),
                )
 
 systray = SysTrayIcon((getImage('...','...',False)), "Starting Battery Monitor...", menu_options)
