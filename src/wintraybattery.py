@@ -1,9 +1,26 @@
 from infi.systray import SysTrayIcon
 from time import sleep
 import wmi
+from PIL import Image, ImageDraw,ImageFont
+
 
 c = wmi.WMI()
 t = wmi.WMI(moniker = "//./root/wmi")
+
+
+icon_path = "BatteryIcon.ico"
+
+defualt_battery_index = 0
+
+def getImage(deltaRate, deltaTime):
+    img = Image.new('RGBA', (50, 50), color = (255, 255, 255, 90))  # color background =  white  with transparency
+    d = ImageDraw.Draw(img)
+    font_type  = ImageFont.truetype("arial.ttf", 25)
+
+    d.text((0,0), f"{deltaRate}\n{deltaTime}", fill=(255,255,0), font = font_type)
+
+    img.save(icon_path)
+    return icon_path
 
 
 '''
@@ -92,6 +109,23 @@ for b in physical_batteries:
     metrics.append(metric('isCharging', '', b.Charging))
     
 
+def getIconInfo():
+    rate = 0
+    time_text = ''
+    batts = t.ExecQuery('Select * from BatteryStatus where Voltage > 0')
+    for i, b in enumerate(batts):
+        rate = b.dischargeRate if b.dischargeRate else b.chargeRate
+        rate = str("{:,}".format(rate)) 
+
+        time_text = ""
+    
+        if(b.Discharging and float(b.DischargeRate)!=0):
+                time_left = float(b.RemainingCapacity)/float(b.DischargeRate)
+                hours_left = int(time_left)
+                mins_left = (time_left % 1.0)*60
+                time_text = f"{hours_left}h : {mins_left}m"
+    return rate, time_text
+    
 
 
 def getUpdatedText():
@@ -173,6 +207,7 @@ print('Starting battery monitor...')
 print(systray._hwnd)
 while systray._hwnd is not None:
     new_text = getUpdatedText()
+    # new_image = getImage(
     print(f'Got new text: \n{new_text}')
-    systray.update("icon.ico", new_text)
+    systray.update(getImage(*getIconInfo()), new_text)
     sleep(3)
