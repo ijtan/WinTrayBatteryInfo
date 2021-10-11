@@ -4,6 +4,12 @@ import wmi
 from PIL import Image, ImageDraw,ImageFont
 import os
 
+batteries = {}
+
+#rate queue
+history = []
+max_history = 30
+
 
 c = wmi.WMI()
 t = wmi.WMI(moniker = "//./root/wmi")
@@ -12,6 +18,7 @@ t = wmi.WMI(moniker = "//./root/wmi")
 icon_path = "BatteryIcon.ico"
 
 defualt_battery_index = 0
+
 
 def getImage(deltaRate, deltaMetric,negative=True):
     img = Image.new('RGBA', (50, 50), color = (0, 0, 0, 0))
@@ -93,8 +100,6 @@ if(len(physical_batteries)==0):
     print("Error... No batteries found\nExiting...")
     exit()
 
-batteries = {}
-
 for b in physical_batteries:
     batteries[b.Tag] = battery(b)
 
@@ -113,25 +118,36 @@ for b in physical_batteries:
     metrics.append(metric('Battery Estimated Discharge Rate', 'mWh', b.DischargeRate))
     metrics.append(metric('isCharging', '', b.Charging))
     
-
-def getIconInfo():
+def getIconInfo(prev_state):
     rate = 0
     second_text = ''
     batts = t.ExecQuery('Select * from BatteryStatus where Voltage > 0')
     for b in batts:
-        rate = b.dischargeRate if b.dischargeRate else b.chargeRate
-        rate/=1000
+        raw_rate = b.dischargeRate if b.dischargeRate else b.chargeRate
+        rate=raw_rate/1000
         rate = str(round(rate,1))+'k'
         # rate = str("{:,}".format(rate)) 
     
-        if(b.Discharging and float(b.DischargeRate)!=0):
-                time_left = float(b.RemainingCapacity)/float(b.DischargeRate)
+
+    if len(history) > max_history:
+        history.pop(0)
+
+    if prev_state!=b.Discharging:
+        history.clear()
+        prev_state = b.Discharging
+
+    history.append(raw_rate)
+    avg_rate = sum(history)/len(history)
+
+    if(b.Discharging and float(b.DischargeRate)!=0):
+                time_left = float(b.RemainingCapacity)/float(avg_rate)
                 hours_left = int(time_left)
                 mins_left = int((time_left % 1.0)*60)
                 # second_text = f"{hours_left}h : {mins_left}m"
                 second_text = f"{hours_left}:{mins_left}"
-        elif not b.Discharging:
-           second_text = f"{ c.win32_battery()[defualt_battery_index].EstimatedChargeRemaining}%"
+    elif not b.Discharging:
+        second_text = f"{ c.win32_battery()[defualt_battery_index].EstimatedChargeRemaining}%"
+
 
     return rate, second_text,b.Discharging
     
@@ -195,6 +211,7 @@ systray = SysTrayIcon((getImage('...','...',False)), "Starting Battery Monitor..
 
 
 def main():
+    
     systray.start()
     print('Starting Tray Icon...')
     # sleep(5) # requires sleep to allow the systray to start
@@ -202,14 +219,17 @@ def main():
         sleep(.1)
         print('Waiting for Tray Icon to start...')
 
-
+    prev_state = True
     print('Starting battery Icon...')
     print(systray._hwnd)
     while systray._hwnd is not None:
         new_text = getUpdatedText()
         # new_image = getImage(
         print(f'Got new text: \n{new_text}')
-        systray.update(getImage(*getIconInfo()), new_text)
+        systray.update(getImage(*getIconInfo(prev_state)), new_text)
+        print(f'history length: {len(history)}')
+        print(f'history: {history}')
+        
         sleep(1)
 
 
