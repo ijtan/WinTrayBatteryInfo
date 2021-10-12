@@ -39,17 +39,19 @@ def getImage(deltaRate, deltaMetric,negative=True):
 Intention is to allow the user to choose which items to show throgh a submenu with checkboxes
 '''
 class metric:
-    def __init__(self, name, unit, value, hidden=False):
+    def __init__(self, name, unit, function_name,value=0, hidden=False):
         self.name = name
         self.unit = unit
         self.value = value
+        self.function_name = function_name
         self.hidden = hidden
+
     
     def __str__(self):
         if self.hidden:
             return ""
         else:
-            return self.name + ": " + str(self.value()) + self.unit
+            return str(self.name + ": " + str(self.value) + self.unit)
     
     def __repr__(self):
         return self.__str__()
@@ -62,12 +64,18 @@ class metric:
 
 
 class battery:
-    def __init__(self,battery,metrics=[]):
-        self.battery = battery
+    def __init__(self,batt,metrics=[]):
+        self.batt = batt
         self.metrics = metrics
     
+    def update(self):
+        for m in self.metrics:
+            m.value = getattr(self.batt, m.function_name)
+        return self.metrics
+
     def __str__(self):
-        return "\n".join([str(m) for m in self.metrics])
+        self.update()
+        return "".join([str(m)+'\n' for m in self.metrics])
     
     def __repr__(self):
         return self.__str__()
@@ -80,6 +88,7 @@ class battery:
     
     def add_metric(self, metric):
         self.metrics.append(metric)
+        # return self.metrics.index(metric)
     
     def remove_metric(self, metric):
         self.metrics.remove(metric)
@@ -104,19 +113,30 @@ for b in physical_batteries:
     batteries[b.Tag] = battery(b)
 
     metrics = []
+    metrics.append(metric("Voltage", "V", 'Voltage'))
+    metrics.append(metric('Battery Remaining Capacity', 'mAh', 'RemainingCapacity'))
+    metrics.append(metric('Battery Estimated Charge Rate', 'mWh', 'ChargeRate'))
+    metrics.append(metric('Battery Estimated Discharge Rate', 'mWh', 'DischargeRate'))
+    metrics.append(metric('isCharging', '', 'Charging'))
+
+    for m in metrics:
+        batteries[b.Tag].add_metric(m)
+    
+
+
     # metrics.append(metric('Battery % Remaining', '%', b.EstimatedChargeRemaining))
-    metrics.append(metric('Battery Voltage', 'V', b.Voltage))
-    # metrics.append(metric('Battery Current', 'A', b.Current))
-    metrics.append(metric('Battery Remaining Capacity', 'mAh', b.RemainingCapacity))
-    # metrics.append(metric('Battery Full Capacity', 'mAh', b.FullCapacity))
-    # metrics.append(metric('Battery Design Capacity', 'mAh', b.DesignCapacity))
-    # metrics.append(metric('Battery Cycle Count', '', b.CycleCount))
-    # metrics.append(metric('Battery Temperature', 'C', b.Temperature))
-    # metrics.append(metric('Battery Estimated Time Remaining', '', b.EstimatedTime))
-    # metrics.append(metric('Battery Estimated Run Time', 'hours', b.EstimatedRunTime))
-    metrics.append(metric('Battery Estimated Charge Rate', 'mWh', b.ChargeRate))
-    metrics.append(metric('Battery Estimated Discharge Rate', 'mWh', b.DischargeRate))
-    metrics.append(metric('isCharging', '', b.Charging))
+    # metrics.append(metric('Battery Voltage', 'V', b.Voltage))
+    # # metrics.append(metric('Battery Current', 'A', b.Current))
+    # metrics.append(
+    # # metrics.append(metric('Battery Full Capacity', 'mAh', b.FullCapacity))
+    # # metrics.append(metric('Battery Design Capacity', 'mAh', b.DesignCapacity))
+    # # metrics.append(metric('Battery Cycle Count', '', b.CycleCount))
+    # # metrics.append(metric('Battery Temperature', 'C', b.Temperature))
+    # # metrics.append(metric('Battery Estimated Time Remaining', '', b.EstimatedTime))
+    # # metrics.append(metric('Battery Estimated Run Time', 'hours', b.EstimatedRunTime))
+    # metrics.append(metric('Battery Estimated Charge Rate', 'mWh', b.ChargeRate))
+    # metrics.append(metric('Battery Estimated Discharge Rate', 'mWh', b.DischargeRate))
+    # metrics.append(metric('isCharging', '', b.Charging))
     
 def getIconInfo(prev_state):
     rate = 0
@@ -153,37 +173,37 @@ def getIconInfo(prev_state):
     
 
 
-def getUpdatedText():
-    new_text = ""
-    batts = t.ExecQuery('Select * from BatteryStatus where Voltage > 0')
-    for i, b in enumerate(batts):
-        # new_text+=(f'Battery: {i}\n')
-        # new_text+=('isCharging: ' + str(b.PowerOnline)) + '\n'
-        # new_text+=('Discharging:       ' + str(b.Discharging)) + '\n'
-        # new_text+=('Charging:          ' + str(b.Charging)) + '\n'
+# def getUpdatedText():
+#     new_text = ""
+#     batts = t.ExecQuery('Select * from BatteryStatus where Voltage > 0')
+#     for i, b in enumerate(batts):
+#         # new_text+=(f'Battery: {i}\n')
+#         # new_text+=('isCharging: ' + str(b.PowerOnline)) + '\n'
+#         # new_text+=('Discharging:       ' + str(b.Discharging)) + '\n'
+#         # new_text+=('Charging:          ' + str(b.Charging)) + '\n'
         
-        if(b.Discharging):
-            new_text+=('Discharge Rate: -' + str("{:,}".format(b.DischargeRate))) + 'mWh\n'
-        else:
-            new_text+=('Charge Rate: ' + str("{:,}".format(b.ChargeRate))) + '\n'
+#         if(b.Discharging):
+#             new_text+=('Discharge Rate: -' + str("{:,}".format(b.DischargeRate))) + 'mWh\n'
+#         else:
+#             new_text+=('Charge Rate: ' + str("{:,}".format(b.ChargeRate))) + '\n'
 
-        if(b.Discharging and float(b.DischargeRate)!=0):
-            time_left = float(b.RemainingCapacity)/float(b.DischargeRate)
-            hours_left = int(time_left)
-            mins_left = (time_left % 1.0)*60
-            new_text += 'Time Remaining: ' + '%i hr %i min' % (hours_left, mins_left)+'\n'
-
-
-        new_text+=('Voltage:           ' + str(b.Voltage)) + '\n'
+#         if(b.Discharging and float(b.DischargeRate)!=0):
+#             time_left = float(b.RemainingCapacity)/float(b.DischargeRate)
+#             hours_left = int(time_left)
+#             mins_left = (time_left % 1.0)*60
+#             new_text += 'Time Remaining: ' + '%i hr %i min' % (hours_left, mins_left)+'\n'
 
 
-        '''
-        CANNOT CALCULATE TIME LEFT FOR CHARGING BATTERIES WELL
-        AS DESIGN CAPACITY NOT WORKING
-        '''
+#         new_text+=('Voltage:           ' + str(b.Voltage)) + '\n'
+
+
+    '''
+    CANNOT CALCULATE TIME LEFT FOR CHARGING BATTERIES WELL
+    AS DESIGN CAPACITY NOT WORKING
+    '''
 
         # new_text+=('RemainingCapacity: ' + str(b.RemainingCapacity)) + '\n'
-    return new_text
+    # return new_text
 
 def ex1(sysTrayIcon):
     print('example 1')
@@ -223,14 +243,22 @@ def main():
     print('Starting battery Icon...')
     print(systray._hwnd)
     while systray._hwnd is not None:
-        new_text = getUpdatedText()
-        # new_image = getImage(
-        print(f'Got new text: \n{new_text}')
-        systray.update(getImage(*getIconInfo(prev_state)), new_text)
-        print(f'history length: {len(history)}')
-        print(f'history: {history}')
+        # new_text = getUpdatedText()
+        # # new_image = getImage(
+        # print(f'Got new text: \n{new_text}')
+        # systray.update(getImage(*getIconInfo(prev_state)), new_text)
+        # print(f'history length: {len(history)}')
+        # print(f'history: {history}')
+        # print(f'Battery print: "{[val for key,val in batteries.items()]}"')
+
+        text = ''
+        for key,val in batteries.items():
+            text+=str(val)+'\n'
         
-        sleep(1)
+        print(text)
+        systray.update(getImage(*getIconInfo(prev_state)),text)
+        
+        sleep(2)
 
 
 if __name__ == '__main__':
