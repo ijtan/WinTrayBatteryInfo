@@ -15,7 +15,7 @@ from tray_manager import *
 #5. Add an option to select tray icon modes (dicharge rate maybe or time remaining etc. )
 
 
-#submenus
+#right click menu options
 menu_options = (
     # ('Options', "submenu.ico", (
                     # ('example thing 1', "simon.ico", ex1),
