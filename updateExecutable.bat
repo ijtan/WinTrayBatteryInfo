@@ -1,0 +1,1 @@
+pyinstaller -F --noconsole .\src\wintraybattery.py
