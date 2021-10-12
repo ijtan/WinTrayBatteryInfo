@@ -68,10 +68,11 @@ def getIconInfo(prev_state,batt_index=default_battery_index):
 
 def default_battery_metrics():
     metrics = []
+    
+    metrics.append(metric('Remaining Capacity', 'mAh', 'RemainingCapacity'))
+    metrics.append(metric('Charge Rate', 'mWh', 'ChargeRate'))
+    metrics.append(metric('Discharge Rate', 'mWh', 'DischargeRate'))
     metrics.append(metric("Voltage", "V", 'Voltage',hidden=True))
-    metrics.append(metric('Battery Remaining Capacity', 'mAh', 'RemainingCapacity'))
-    metrics.append(metric('Battery Estimated Charge Rate', 'mWh', 'ChargeRate'))
-    metrics.append(metric('Battery Estimated Discharge Rate', 'mWh', 'DischargeRate'))
     metrics.append(metric('isCharging', '', 'Charging',hidden=True))
 
     return metrics
