@@ -9,6 +9,7 @@ batteries = {}
 #rate queue
 history = []
 max_history = 30
+defualt_battery_index = 0
 
 
 c = wmi.WMI()
@@ -17,7 +18,7 @@ t = wmi.WMI(moniker = "//./root/wmi")
 
 icon_path = "BatteryIcon.ico"
 
-defualt_battery_index = 0
+
 
 
 def getImage(deltaRate, deltaMetric,negative=True):
@@ -109,18 +110,18 @@ if(len(physical_batteries)==0):
     print("Error... No batteries found\nExiting...")
     exit()
 
-for b in physical_batteries:
-    batteries[b.Tag] = battery(b)
+# for b in physical_batteries:
+#     batteries[b.Tag] = battery(b)
 
-    metrics = []
-    metrics.append(metric("Voltage", "V", 'Voltage'))
-    metrics.append(metric('Battery Remaining Capacity', 'mAh', 'RemainingCapacity'))
-    metrics.append(metric('Battery Estimated Charge Rate', 'mWh', 'ChargeRate'))
-    metrics.append(metric('Battery Estimated Discharge Rate', 'mWh', 'DischargeRate'))
-    metrics.append(metric('isCharging', '', 'Charging'))
+#     metrics = []
+#     metrics.append(metric("Voltage", "V", 'Voltage'))
+#     metrics.append(metric('Battery Remaining Capacity', 'mAh', 'RemainingCapacity'))
+#     metrics.append(metric('Battery Estimated Charge Rate', 'mWh', 'ChargeRate'))
+#     metrics.append(metric('Battery Estimated Discharge Rate', 'mWh', 'DischargeRate'))
+#     metrics.append(metric('isCharging', '', 'Charging'))
 
-    for m in metrics:
-        batteries[b.Tag].add_metric(m)
+#     for m in metrics:
+#         batteries[b.Tag].add_metric(m)
     
 
 
@@ -230,8 +231,31 @@ menu_options = (
 systray = SysTrayIcon((getImage('...','...',False)), "Starting Battery Monitor...", menu_options)
 
 
+def default_battery_metrics():
+    metrics = []
+    metrics.append(metric("Voltage", "V", 'Voltage'))
+    metrics.append(metric('Battery Remaining Capacity', 'mAh', 'RemainingCapacity'))
+    metrics.append(metric('Battery Estimated Charge Rate', 'mWh', 'ChargeRate'))
+    metrics.append(metric('Battery Estimated Discharge Rate', 'mWh', 'DischargeRate'))
+    metrics.append(metric('isCharging', '', 'Charging'))
+
+    return metrics
+
+def updateBatteries():
+    physical_batteries = t.ExecQuery('Select * from BatteryStatus where Voltage > 0')
+
+    if(len(physical_batteries)==0):
+        print("Error... No batteries found\nExiting...")
+        exit()
+
+    for b in physical_batteries:
+        if b.Tag not in batteries:
+            batteries[b.Tag] = battery(b,default_battery_metrics())
+        else:
+            batteries[b.Tag].batt = b
+
+
 def main():
-    
     systray.start()
     print('Starting Tray Icon...')
     # sleep(5) # requires sleep to allow the systray to start
@@ -250,6 +274,7 @@ def main():
         # print(f'history length: {len(history)}')
         # print(f'history: {history}')
         # print(f'Battery print: "{[val for key,val in batteries.items()]}"')
+        updateBatteries()
 
         text = ''
         for key,val in batteries.items():
