@@ -33,6 +33,7 @@ def getImage(deltaRate, deltaMetric,negative=True):
     
 def getIconInfo(prev_state,batt_index=default_battery_index):
     rate = 0
+    first_text = ''
     second_text = ''
     batts = t.ExecQuery('Select * from BatteryStatus where Voltage > 0')
     for b in batts:
@@ -40,6 +41,8 @@ def getIconInfo(prev_state,batt_index=default_battery_index):
         rate=raw_rate/1000
         rate = str(round(rate,1))+'k'
         # rate = str("{:,}".format(rate)) 
+
+        first_text = f"{ c.win32_battery()[default_battery_index].EstimatedChargeRemaining}%"
     
 
     if len(history) > max_history:
@@ -52,17 +55,17 @@ def getIconInfo(prev_state,batt_index=default_battery_index):
     history.append(raw_rate)
     avg_rate = sum(history)/len(history)
 
-    if(b.Discharging and float(b.DischargeRate)!=0):
-                time_left = float(b.RemainingCapacity)/float(avg_rate)
-                hours_left = int(time_left)
-                mins_left = int((time_left % 1.0)*60)
-                # second_text = f"{hours_left}h : {mins_left}m"
-                second_text = f"{hours_left}:{mins_left}"
-    elif not b.Discharging:
-        second_text = f"{ c.win32_battery()[default_battery_index].EstimatedChargeRemaining}%"
+    # if(b.Discharging and float(b.DischargeRate)!=0):
+    time_left = float(b.RemainingCapacity)/float(avg_rate)
+    hours_left = int(time_left)
+    mins_left = int((time_left % 1.0)*60)
+    # second_text = f"{hours_left}h : {mins_left}m"
+    second_text = f"{hours_left}:{mins_left}"
+    # elif not b.Discharging:
+    #     second_text = f"{ c.win32_battery()[default_battery_index].EstimatedChargeRemaining}%"
 
 
-    return rate, second_text,b.Discharging
+    return first_text, second_text,b.Discharging
 
 
 
