@@ -2,4 +2,4 @@ build/*
 src/__pycache__/*
 *.spec
 *BatteryIcon.ico
-src/tray_manager.py
+dist/wintraybattery.exe
