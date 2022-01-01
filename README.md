@@ -19,12 +19,13 @@ Where several other metrics can be shown including:
 # Dynamic Tray Icons
 Eventually, this should be customizable where a user can choose which metrics to display through a simple GUI, currently, preset metrics are shown, so the Icon is still useful.
 ## Whilst Charging
-![image](https://user-images.githubusercontent.com/11772153/136819760-f97c16ab-3399-4d4d-b52c-0506fb5d0275.png)
+![image](https://user-images.githubusercontent.com/11772153/147858495-d2de2637-1c95-4c79-85ac-615882648e5c.png)
 
 Top: Charge Percent Remaining
 Bottom: Charge rate (in Wh)
 ## Whilst Discharging
-![image](https://user-images.githubusercontent.com/11772153/136819779-a96fc0cb-e9e0-4ea2-bc2f-9731470efd34.png)
+![image](https://user-images.githubusercontent.com/11772153/147858489-6de2b1d1-6198-4f18-a1b5-84c01442bf2f.png)
+
 
 Top: Discharge rate (in Wh)
 Bottom: Predicted Battery Time Remaining
