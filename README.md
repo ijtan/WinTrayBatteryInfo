@@ -20,12 +20,12 @@ Where several other metrics can be shown including:
 Eventually, this should be customizable where a user can choose which metrics to display through a simple GUI, currently, preset metrics are shown, so the Icon is still useful.
 ## Whilst Charging
 ![image](https://user-images.githubusercontent.com/11772153/147858495-d2de2637-1c95-4c79-85ac-615882648e5c.png)
-
-Top: Charge Percent Remaining
-Bottom: Charge rate (in Wh)
+ 
+Top: Estimated Time until fully-charged
+Bottom: Charge Percent Remaining
 ## Whilst Discharging
 ![image](https://user-images.githubusercontent.com/11772153/147858489-6de2b1d1-6198-4f18-a1b5-84c01442bf2f.png)
 
 
-Top: Discharge rate (in Wh)
-Bottom: Predicted Battery Time Remaining
+Top: Charge Percent Remaining
+Bottom: Estimated Battery Time Remaining
